@@ -1,0 +1,53 @@
+.repair{
+  margin: 0.3rem 0.1rem;
+  background: #EFEFF4!important; 
+}
+p{
+  margin: 0;
+}
+.edit p {
+  text-align: left;
+  font-size: 0.28rem;
+  padding: 0.26rem 0.1rem;
+  border-bottom: 1px solid #FFF7F4F8;
+}
+.edit {
+  border-bottom: 1px solid #FFF7F4F8;
+}
+.mainbody2{
+  box-shadow:4px 5px 9px rgba(4,0,0,0.11);
+  background: #F5F5F5;
+  width: 100%;
+}
+.detail1{
+  background: white;
+}
+.shadow{
+  box-shadow:4px 5px 9px rgba(4,0,0,0.11);
+  background: #F5F5F5;
+  margin-top: 0.2rem;
+  margin-bottom: 1rem; 
+}
+.edit{
+  background: white;
+}
+.btn button{
+  width:7rem;
+  height:0.98rem;
+  background:rgba(96,175,253,1);
+  border-radius:49px;
+  color: white;
+  border: none;
+  font-size: 0.34rem;
+}
+.btn {
+  position: fixed;
+  bottom: 0.1rem;
+  width: 98%;
+}
+/* @media screen and (min-width:528px){
+  .btn {
+    position: absolute;
+    width: 98%;
+  }
+} */
