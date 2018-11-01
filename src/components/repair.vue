@@ -2,8 +2,8 @@
   <div class="repair">
       <div class="mainbody2">
       <div class="detail1">
-        <div class="input"><span>&nbsp;&nbsp;联系人</span><input type="text" placeholder="请输入您的姓名" v-model="name"></div>
-        <div class="input"><span>&nbsp;&nbsp;联系方式</span><input type="text" @blur="blur" placeholder="请输入您的联系方式" v-model="phone"></div>
+        <div class="input"><span>&nbsp;&nbsp;联系人</span><input readonly="readonly" type="text" placeholder="请输入您的姓名" v-model="name" ></div>
+        <div class="input"><span>&nbsp;&nbsp;联系方式</span><input readonly="readonly" type="text" @blur="blur" placeholder="请输入您的联系方式" v-model="phone"></div>
       <div class="input">
         <span>&nbsp;&nbsp;选择上门时间</span>
         <button @click="show = true">{{this.time}}<van-icon name="arrow" /></button>
@@ -38,21 +38,21 @@
       <!-- <p style="border:0.1rem solid #F5F5F5"></p> -->
       <div style="text-align:left;padding: 0.1rem 0;background: white;">
         <span v-for="(img, index) in src" :key="index">
-          <div style="display:inline-block;">
+          <div style="display:inline-block;margin-bottom: 0.05rem;">
             <!-- <p class="shanchu">删除</p> -->
             <van-icon name="close" @click="dele($event, index)"/>
             <img :src="img" class="upLoad">
           </div>
         </span>
-        <div style="display:inline-block">
+        <div style="display:inline-block" v-if="src.length < 5">
           <button class="upLoad"><van-icon name="photograph" /><p>{{this.long}}/5</p></button>
-          <input type="file" id="pic" accept="image/*" @change="onRead">
+          <input type="file" id="pic" accept="image/*" @change="onRead" multiple>
         </div>
       </div>
     </div>
     <!-- <p style="border:0.1rem solid #F5F5F5"></p> -->
     <div class="btn">
-      <button @click="submit">立即缴费</button>
+      <button @click="submit">立即报修</button>
     </div>
   </div>
 </template>
@@ -157,18 +157,19 @@ export default {
     // 添加图片
     onRead (e) {
       let _this = this
-      var files = e.target.files[0]
-      if (!e || !window.FileReader) return // 看支持不支持FileReader
-      let reader = new FileReader()
-      reader.readAsDataURL(files) // 这里是最关键的一步，转换就在这里
-      reader.onloadend = function () {
-        // this.long = _this.src.length
-        if (_this.src.length > 4) {
-          console.log('嘿嘿')
-        } else {
-          _this.src.push(this.result)
-          _this.long = _this.src.length
-          _this.pic.push(files)
+      for (var i = 0; i < e.target.files.length; i++) {
+        if (!e || !window.FileReader) return // 看支持不支持FileReader
+        let reader = new FileReader()
+        reader.readAsDataURL(e.target.files[i]) // 这里是最关键的一步，转换就在这里
+        reader.onloadend = function () {
+          // this.long = _this.src.length
+          if (_this.src.length > 4) {
+            console.log('嘿嘿')
+          } else {
+            _this.src.push(this.result)
+            _this.long = _this.src.length
+            _this.pic.push(e.target.files[i])
+          }
         }
       }
     },

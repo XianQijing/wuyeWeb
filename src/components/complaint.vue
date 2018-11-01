@@ -8,15 +8,15 @@
     <div class="picture">
       <p class="sele"><span>图片（选填，提供问题截图）</span><span style="color:rgba(178,178,178,1);">{{this.lo}}/4</span></p>
         <span v-for="(img, index) in src" :key="index">
-          <div style="display:inline-block;">
+          <div style="display:inline-block;margin-bottom: 0.05rem;">
             <!-- <p class="shanchu">删除</p> -->
             <van-icon name="close" @click="dele($event, index)"/>
             <img :src="img" class="upLoad">
           </div>
         </span>
-        <div style="display:inline-block">
+        <div style="display:inline-block" v-if="src.length < 4">
           <button class="upLoad"><van-icon name="photograph" /><p>{{this.lo}}/4</p></button>
-          <input type="file" id="pic" accept="image/*" @change="onRead">
+          <input type="file" id="pic" accept="image/*" @change="onRead" multiple>
         </div>
       </div>
       <div class="btn">
@@ -45,18 +45,19 @@ export default {
   methods: {
     onRead (e) {
       let _this = this
-      var files = e.target.files[0]
       if (!e || !window.FileReader) return // 看支持不支持FileReader
-      let reader = new FileReader()
-      reader.readAsDataURL(files) // 这里是最关键的一步，转换就在这里
-      reader.onloadend = function () {
-        // this.long = _this.src.length
-        if (_this.src.length > 3) {
-          console.log('嘿嘿')
-        } else {
-          _this.src.push(this.result)
-          _this.lo = _this.src.length
-          _this.pic.push(files)
+      for (var i = 0; i < e.target.files.length; i++) {
+        let reader = new FileReader()
+        reader.readAsDataURL(e.target.files[i]) // 这里是最关键的一步，转换就在这里
+        reader.onloadend = function () {
+          // this.long = _this.src.length
+          if (_this.src.length > 3) {
+            console.log('嘿嘿')
+          } else {
+            _this.src.push(this.result)
+            _this.lo = _this.src.length
+            _this.pic.push(e.target.files[i])
+          }
         }
       }
     },
