@@ -49,15 +49,15 @@ export default {
       for (var i = 0; i < e.target.files.length; i++) {
         let reader = new FileReader()
         reader.readAsDataURL(e.target.files[i]) // 这里是最关键的一步，转换就在这里
-        reader.onloadend = function () {
-          // this.long = _this.src.length
-          if (_this.src.length > 3) {
-            console.log('嘿嘿')
-          } else {
+        // this.long = _this.src.length
+        if (_this.pic.length > 3) {
+          console.log('嘿嘿')
+        } else {
+          reader.onloadend = function () {
             _this.src.push(this.result)
             _this.lo = _this.src.length
-            _this.pic.push(e.target.files[i])
           }
+          _this.pic.push(e.target.files[i])
         }
       }
     },

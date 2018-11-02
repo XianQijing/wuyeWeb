@@ -4,27 +4,36 @@
       <div class="detail1">
         <div class="input"><span>&nbsp;&nbsp;联系人</span><input readonly="readonly" type="text" placeholder="请输入您的姓名" v-model="name" ></div>
         <div class="input"><span>&nbsp;&nbsp;联系方式</span><input readonly="readonly" type="text" @blur="blur" placeholder="请输入您的联系方式" v-model="phone"></div>
-      <div class="input">
-        <span>&nbsp;&nbsp;选择上门时间</span>
-        <button @click="show = true">{{this.time}}<van-icon name="arrow" /></button>
-        <van-popup v-model="show" position="bottom">
-          <van-datetime-picker
-            v-model="currentDate"
-            type="datetime"
-            :min-date="minDate"
-            @confirm="confirm('time')"
-            :formatter="formatter"
-            @cancel="cancel('time')"
-          />
-        </van-popup>
-      </div>
-      <div class="input">
-        <span>&nbsp;&nbsp;报修类型</span>
-        <button @click="show1 = true">{{this.oType}}<van-icon name="arrow" /></button>
-        <van-popup v-model="show1" position="bottom">
-          <van-picker show-toolbar :columns="columns" @confirm="onChange" @cancel="cancel('otype')" />
-        </van-popup>
-      </div>
+
+        <div class="input">
+          <span>&nbsp;&nbsp;关联房屋</span>
+          <button @click="show2 = true">{{selHouse}}<van-icon name="arrow" /></button>
+          <van-popup v-model="show2" position="bottom">
+            <van-picker :columns="house" @change="onChange1" value-key="name"/>
+          </van-popup>
+        </div>
+        <div class="input">
+          <span>&nbsp;&nbsp;选择上门时间</span>
+          <button @click="show = true">{{this.time}}<van-icon name="arrow" /></button>
+          <van-popup v-model="show" position="bottom">
+            <van-datetime-picker
+              v-model="currentDate"
+              type="datetime"
+              :min-date="minDate"
+              @confirm="confirm('time')"
+              :formatter="formatter"
+              @cancel="cancel('time')"
+            />
+          </van-popup>
+        </div>
+
+        <div class="input">
+          <span>&nbsp;&nbsp;报修类型</span>
+          <button @click="show1 = true">{{this.oType}}<van-icon name="arrow" /></button>
+          <van-popup v-model="show1" position="bottom">
+            <van-picker show-toolbar :columns="columns" @confirm="onChange" @cancel="cancel('otype')" />
+          </van-popup>
+        </div>
       </div>
       <div></div>
     </div>
@@ -58,7 +67,7 @@
 </template>
 
 <script>
-import { DatetimePicker, Popup, Icon, Uploader, Toast, Picker } from 'vant'
+import { DatetimePicker, Popup, Icon, Uploader, Toast, Picker, Loading } from 'vant'
 import url from '../assets/Req.js'
 export default {
   name: 'repair',
@@ -83,7 +92,22 @@ export default {
       phone: '',
       lo: 0,
       id: '',
-      openId: ''
+      openId: '',
+      citys: [],
+      room: '',
+      house: [
+        {
+          values: [],
+          className: 'column1'
+        },
+        {
+          values: [],
+          className: 'column2'
+          // defaultIndex: 2
+        }
+      ],
+      show2: false, // 关联房屋
+      selHouse: ''
     }
   },
   watch: {
@@ -101,6 +125,13 @@ export default {
         this.name = res.data[0].name
         this.phone = res.data[0].phone
         this.id = res.data[0].id
+        this.axios.get(url + 'tenement-wechat/serviceAccept/getRoomTwo/' + res.data[0].id).then(res => {
+          this.citys = res.data
+          this.house[0].values = Object.keys(this.citys)
+          this.house[1].values = this.citys[Object.keys(this.citys)[0]]
+          this.selHouse = Object.keys(this.citys)[0] + ',' + this.citys[Object.keys(this.citys)[0]][0].name
+          this.room = this.citys[Object.keys(this.citys)[0]][0].id
+        })
       })
     }
   },
@@ -115,6 +146,11 @@ export default {
     onChange (value, index) {
       this.oType = value
       this.show1 = false
+    },
+    onChange1 (picker, values) {
+      picker.setColumnValues(1, this.citys[values[0]])
+      this.selHouse = values[0] + ',' + values[1].name
+      this.room = picker.getColumnValue(1).id
     },
     not () {
       document.getElementById('notpay').className = 'active'
@@ -136,8 +172,10 @@ export default {
     cancel (msg) {
       if (msg === 'time') {
         this.show = false
-      } else {
+      } else if (msg === 'otype') {
         this.show1 = false
+      } else {
+        this.show2 = false
       }
     },
     formatter (type, value) {
@@ -160,16 +198,15 @@ export default {
       for (var i = 0; i < e.target.files.length; i++) {
         if (!e || !window.FileReader) return // 看支持不支持FileReader
         let reader = new FileReader()
-        reader.readAsDataURL(e.target.files[i]) // 这里是最关键的一步，转换就在这里
-        reader.onloadend = function () {
-          // this.long = _this.src.length
-          if (_this.src.length > 4) {
-            console.log('嘿嘿')
-          } else {
+        if (_this.pic.length > 4) {
+          console.log('嘿嘿')
+        } else {
+          reader.readAsDataURL(e.target.files[i]) // 这里是最关键的一步，转换就在这里
+          reader.onloadend = function () {
             _this.src.push(this.result)
             _this.long = _this.src.length
-            _this.pic.push(e.target.files[i])
           }
+          _this.pic.push(e.target.files[i])
         }
       }
     },
@@ -195,7 +232,8 @@ export default {
           'receiverTime': this.time,
           'problem': this.edit,
           'serviceAcceptImgs': picName,
-          'customer': this.id
+          'customer': this.id,
+          'room': this.room
         }
         this.axios.post(url + 'tenement-wechat/serviceAccept/serviceAccept', serviceAccept).then(res => {
           if (res.data === true) {
@@ -233,7 +271,8 @@ export default {
     [Icon.name]: Icon,
     [Uploader.name]: Uploader,
     [Toast.name]: Toast,
-    [Picker.name]: Picker
+    [Picker.name]: Picker,
+    [Loading.name]: Loading
   }
 }
 function format (str) {

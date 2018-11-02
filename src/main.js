@@ -5,7 +5,6 @@ import App from './App'
 import router from './router'
 import '../static/css/web.css'
 import axios from 'axios'
-
 // Vue.use(DatetimePicker)
 Vue.prototype.axios = axios
 Vue.config.productionTip = false
